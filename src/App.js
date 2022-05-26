@@ -5,12 +5,18 @@ import Login from "./pages/Login";
 import UserInfo from "./pages/UserInfo";
 import ViewUser from "./Components/ViewUser";
 import EditUser from "./Components/EditUser";
+import ListUser from "./Components/ListUser";
+import DeleteUser from "./Components/DeleteUser";
 
 function App() {
-  const Token = localStorage.getItem("access_token");
-  if (!Token) {
-    return <Login />;
-  }
+  // const token = localStorage.getItem("access_token");
+  // const email = localStorage.getItem("email");
+
+  // if (!token && !email) {
+  //   return <Login />;
+  // } else if (token && email) {
+  //   return <ListUser />;
+  // }
   return (
     <div>
       <Switch>
@@ -27,7 +33,7 @@ function App() {
           <EditUser />
         </Route>
         <Route path="/user/delete/:id" exact>
-          <EditUser />
+          <DeleteUser />
         </Route>
       </Switch>
     </div>

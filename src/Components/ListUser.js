@@ -3,6 +3,32 @@ import "antd/dist/antd.css";
 import { Table, Card, Space, Avatar } from "antd";
 import { Link } from "react-router-dom";
 
+const deleteHandler = (id) => {
+  var myHeaders = new Headers();
+  const token = localStorage.getItem("access_token");
+
+  myHeaders.append("Authorization", token);
+  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+  var urlencoded = new URLSearchParams();
+  urlencoded.append("userId", id);
+
+  var requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: urlencoded,
+    redirect: "follow",
+  };
+
+  fetch("http://202.131.117.92:7100/admin/api/deleteUser", requestOptions)
+    .then((response) => response.text())
+    .then((result) => {
+      // console.log(result)
+      alert("user delete succesfully", result);
+    })
+    .catch((error) => console.log("error", error));
+};
+
 const ListUser = () => {
   const [userData, setUserData] = useState([]);
 
@@ -97,7 +123,8 @@ const ListUser = () => {
         <Space size="middle">
           <Link to={`/user/view/${record._id}`}>view</Link>
           <Link to={`/user/edit/${record._id}`}>edit</Link>
-          <Link to={`/user/delete/${record._id}`}>delete</Link>
+          {/* <Link to={`/user/delete/${record._id}`}>delete</Link> */}
+          <button onClick={(e) => deleteHandler(record._id)}>delete</button>
         </Space>
       ),
     },
