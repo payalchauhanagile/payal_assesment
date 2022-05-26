@@ -4,7 +4,7 @@ import { Grid, Paper } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 
 const ViewUser = () => {
-  const paperStyle = { padding: 20, width: 300, margin: "100px auto" };
+  const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
 
   const { id } = useParams();
   console.log(id);
@@ -22,7 +22,7 @@ const ViewUser = () => {
   myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
   var urlencoded = new URLSearchParams();
-  urlencoded.append("userId", "626795fd302b8542b79afe2c");
+  urlencoded.append("userId", id);
 
   var requestOptions = {
     method: "POST",
@@ -34,7 +34,7 @@ const ViewUser = () => {
   useEffect(() => {
     fetch(`http://202.131.117.92:7100/admin/api/getUserProfile`, requestOptions)
       .then((response) => response.text())
-      .then((result) => setUser(result))
+      .then((result) => setUser(JSON.parse(result)))
       .catch((error) => console.log("error", error));
   }, []);
 
@@ -46,20 +46,29 @@ const ViewUser = () => {
           <h2>User Data </h2>
         </Grid>
         <ul>
-          <li>id:{id.firstName}</li>
-          <li>email:{user.email}</li>
-          <li>firstname:{user.firstName}</li>
-          <li>lastname:{user.lastName}</li>
-          <li>phone:{user.phoneNumber}</li>
-          <li>birthdate:{user.birthdate}</li>
+          <li>
+            {
+              <img
+                src={user?.data?.profilePicture}
+                style={{ height: "100px", width: "100px" }}
+              />
+            }
+          </li>
+          <br />
+          <li>id:-{user?.data?._id}</li>
+          <br />
+          <li>email:-{user?.data?.email}</li>
+          <br />
+          <li>firstname:-{user?.data?.firstName}</li>
+          <br />
+          <li>lastname:-{user?.data?.lastName}</li>
+          <br />
+          <li>phone:-{user?.data?.phoneNumber}</li>
+          <br />
+          <li>birthdate:-{user?.data?.birthday}</li>
+          <br />
         </ul>
 
-        {/* {user.map((result) => (
-          <ul>
-            <li>id:{result._id}</li>
-            <li>email:{result.email}</li>
-          </ul>
-        ))} */}
         <button>
           <NavLink to="/user">Back</NavLink>
         </button>
