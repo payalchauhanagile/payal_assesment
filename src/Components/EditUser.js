@@ -1,10 +1,29 @@
-import React from "react";
-import { Card } from "antd";
+import React, { useEffect } from "react";
+import { Grid, Paper, TextField, Button } from "@material-ui/core";
+import { Formik, Field, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
+
 import { useParams } from "react-router";
 
 const EditUser = () => {
   const { id } = useParams();
   console.log(id);
+
+  // const [user, setUser] = useState([]);
+
+  const initialValues = {
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    file: "",
+  };
+  const validationSchema = Yup.object().shape({
+    firstname: Yup.string().required("Required"),
+    lastname: Yup.string().required("Required"),
+    email: Yup.string().required("Required"),
+    phone: Yup.number().required("Required"),
+  });
 
   var myHeaders = new Headers();
 
@@ -15,51 +34,96 @@ const EditUser = () => {
   myHeaders.append("Content-Type", "application/json");
 
   var formdata = new FormData();
-  formdata.append("userId", id);
-  // formdata.append("firstName", "Jollllly");
-  // formdata.append("lastName", "Parrrrker");
-  // formdata.append("birthday", "02-02-2001");
-  // formdata.append("phoneNumber", "9928881828");
-  // formdata.append("profilePicture", fileInput.files[0], "user-male.png");
+  formdata.append("userId", "605c1011ceda1a18bd71e0f3");
+  formdata.append("firstName", "Jollllly");
+
+  const paperStyle = { padding: 20, width: 500, margin: "100px auto" };
 
   var requestOptions = {
     method: "POST",
     headers: myHeaders,
     body: formdata,
+
     redirect: "follow",
   };
 
-  fetch("http://202.131.117.92:7100/admin/api/updateProfile", requestOptions)
-    .then((response) => response.text())
-    .then((result) => console.log(result))
-    .catch((error) => console.log("error", error));
+  // console.log("user", user);
+
+  useEffect(() => {
+    fetch(`http://202.131.117.92:7100/admin/api/updateProfile`, requestOptions)
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
+  }, []);
   return (
-    <>
-      <Card
-        style={{
-          alignItems: "center",
-          height: "400px",
-          width: "400px",
-          marginTop: "100px",
-          marginLeft: "200px",
-        }}
-      >
-        <h1 style={{ textAlign: "center" }}>EditUser</h1>
-        <form>
-          <label htmlFor="firstname">firstname:- </label>
-          <input type="text" id="firstname" />
-          <br />
-          <br />
-          <label htmlFor="lastname">lastname:- </label>
-          <input type="text" id="lastname" />
-          <br />
-          <br />
-          <label htmlFor="email">email:- </label>
-          <input type="email" id="email" />
-          <br />
-        </form>
-      </Card>
-    </>
+    <Grid>
+      <Paper style={paperStyle}>
+        <Grid>
+          <h1 style={{ textAlign: "center" }}>EDIT</h1>
+        </Grid>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          // onSubmit={onSubmit}
+        >
+          {(props) => (
+            <Form>
+              <Field
+                as={TextField}
+                fullWidth
+                name="firstname"
+                type="text"
+                label="firstname"
+                placeholder="firstname"
+                helperText={<ErrorMessage name="firstname" />}
+              />
+              <Field
+                as={TextField}
+                fullWidth
+                name="lastname"
+                type="text"
+                label="lastname"
+                placeholder="lastname"
+                helperText={<ErrorMessage name="lastname" />}
+              />
+              <Field
+                as={TextField}
+                fullWidth
+                name="email"
+                type="email"
+                label="email"
+                placeholder="email"
+                helperText={<ErrorMessage name="email" />}
+              />
+              <Field
+                as={TextField}
+                fullWidth
+                name="phone"
+                type="number"
+                label="phone"
+                placeholder="phone"
+                helperText={<ErrorMessage name="phone" />}
+              />
+              <Field
+                as={TextField}
+                fullWidth
+                name="profile"
+                type="file"
+                label="profile"
+                placeholder="profile"
+                helperText={<ErrorMessage name="profile" />}
+              />
+
+              <br />
+              <br />
+              <Button type="submit" variant="contained" color="primary">
+                Update
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      </Paper>
+    </Grid>
   );
 };
 

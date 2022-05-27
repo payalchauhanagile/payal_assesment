@@ -1,36 +1,38 @@
 import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
-import { Table, Card, Space, Avatar } from "antd";
+import { Table, Card, Space, Avatar, Button } from "antd";
 import { Link } from "react-router-dom";
-
-const deleteHandler = (id) => {
-  var myHeaders = new Headers();
-  const token = localStorage.getItem("access_token");
-
-  myHeaders.append("Authorization", token);
-  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-  var urlencoded = new URLSearchParams();
-  urlencoded.append("userId", id);
-
-  var requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: urlencoded,
-    redirect: "follow",
-  };
-
-  fetch("http://202.131.117.92:7100/admin/api/deleteUser", requestOptions)
-    .then((response) => response.text())
-    .then((result) => {
-      // console.log(result)
-      alert("user delete succesfully", result);
-    })
-    .catch((error) => console.log("error", error));
-};
 
 const ListUser = () => {
   const [userData, setUserData] = useState([]);
+  // const [Delete, setDelete] = useState(false);
+
+  const deleteHandler = (id) => {
+    var myHeaders = new Headers();
+    const token = localStorage.getItem("access_token");
+
+    myHeaders.append("Authorization", token);
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("userId", id);
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    fetch("http://202.131.117.92:7100/admin/api/deleteUser", requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        console.log(result);
+        // setDelete(true);
+        alert("user delete succesfully", result);
+      })
+      .catch((error) => console.log("error", error));
+  };
 
   var myHeaders = new Headers();
   const token = localStorage.getItem("access_token");
@@ -121,10 +123,14 @@ const ListUser = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/user/view/${record._id}`}>view</Link>
-          <Link to={`/user/edit/${record._id}`}>edit</Link>
+          <Link to={`/user/view/${record._id}`}>View</Link>
+          <Link to={`/user/edit/${record._id}`}>Edit</Link>
+          <Link to={`/user/reset`}>Reset Password</Link>
+
           {/* <Link to={`/user/delete/${record._id}`}>delete</Link> */}
-          <button onClick={(e) => deleteHandler(record._id)}>delete</button>
+          <Button type="primary" onClick={(e) => deleteHandler(record._id)}>
+            delete
+          </Button>
         </Space>
       ),
     },

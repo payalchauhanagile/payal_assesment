@@ -5,8 +5,7 @@ import Login from "./pages/Login";
 import UserInfo from "./pages/UserInfo";
 import ViewUser from "./Components/ViewUser";
 import EditUser from "./Components/EditUser";
-import ListUser from "./Components/ListUser";
-import DeleteUser from "./Components/DeleteUser";
+import ResetPassword from "./Components/ResetPassword";
 
 function App() {
   // const token = localStorage.getItem("access_token");
@@ -32,8 +31,8 @@ function App() {
         <Route path="/user/edit/:id" exact>
           <EditUser />
         </Route>
-        <Route path="/user/delete/:id" exact>
-          <DeleteUser />
+        <Route path="/user/reset" exact>
+          <ResetPassword />
         </Route>
       </Switch>
     </div>
