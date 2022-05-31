@@ -138,7 +138,7 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    // backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "80%",
@@ -207,7 +207,7 @@ const Login = () => {
                 fullWidth
                 id="email"
                 name="email"
-                label="Email Address"
+                label="Email"
                 onChange={(e) => setemail(e.target.value)}
               />
               <TextField

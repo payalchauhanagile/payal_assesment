@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
 import { Table, Card, Space, Avatar, Button } from "antd";
+import Search from "antd/lib/input/Search";
 import { Link } from "react-router-dom";
+import {
+  EyeOutlined,
+  EditOutlined,
+  KeyOutlined,
+  CheckOutlined,
+} from "@ant-design/icons";
+
+// const API = process.env.REACT_APP;
 
 const ListUser = () => {
   const [userData, setUserData] = useState([]);
+  const [isSearched, setIsSearched] = useState(false);
+  const [searchResult, setSearchResult] = useState([]);
+
   // const [Delete, setDelete] = useState(false);
 
   const deleteHandler = (id) => {
@@ -70,7 +82,7 @@ const ListUser = () => {
       },
     ],
     start: 0,
-    length: 15,
+    length: 100,
     search: {
       value: "",
       regex: false,
@@ -97,40 +109,53 @@ const ListUser = () => {
       title: "firstname",
       dataIndex: "firstName",
       key: "firstname",
+      // sorter: (a, b) => a.firstName - b.firstName,
+      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
     },
     {
       title: "lastname",
       dataIndex: "lastName",
       key: "lastname",
+      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
     },
     {
       title: "email",
       dataIndex: "email",
       key: "email",
+      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
     },
     {
       title: "phone",
       dataIndex: "phoneNumber",
       key: "phone",
+      sorter: (a, b) => a.phoneNumber - b.phoneNumber,
     },
     {
       title: "birthday",
       dataIndex: "birthday",
       key: "birthday",
+      sorter: (a, b) => a.birthday - b.birthday,
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/user/view/${record._id}`}>View</Link>
-          <Link to={`/user/edit/${record._id}`}>Edit</Link>
-          <Link to={`/user/reset`}>Reset Password</Link>
+          <Link to={`/user/view/${record._id}`}>
+            <Avatar icon={<EyeOutlined />} />
+          </Link>
+          <Link to={`/user/edit/${record._id}`}>
+            <Avatar icon={<EditOutlined />} />
+          </Link>
+          <Link to={`/user/reset`}>
+            <Avatar icon={<KeyOutlined />} />
+          </Link>
+          <Link to={`/user/status/${record._id}`}>
+            <Avatar icon={<CheckOutlined />} />
+          </Link>
 
           {/* <Link to={`/user/delete/${record._id}`}>delete</Link> */}
-          <Button type="primary" onClick={(e) => deleteHandler(record._id)}>
-            delete
-          </Button>
+          <Button onClick={(e) => deleteHandler(record._id)}>delete</Button>
         </Space>
       ),
     },
@@ -145,9 +170,39 @@ const ListUser = () => {
       .catch((error) => console.log("error", error));
   }, []);
 
+  const searchHandler = (searchInput) => {
+    if (searchInput !== "") {
+      let serchedUser = userData.filter((user) => {
+        return (
+          user.firstName.toLowerCase().indexOf(searchInput.toLowerCase()) >= 0
+        );
+      });
+      setSearchResult(serchedUser);
+      setIsSearched(true);
+    } else {
+      setIsSearched(false);
+    }
+  };
+
+  const onChange = (sorter) => {
+    console.log("params", sorter);
+  };
+
   return (
     <>
       <Card>
+        <Search
+          placeholder="search user"
+          allowClear
+          onSearch={searchHandler}
+          style={{
+            // width: "600px",
+            maxWidth: "fit-content",
+            justifyContent: "center",
+            display: "flex",
+            alignTtems: "center",
+          }}
+        />
         <div
           style={{
             justifyContent: "center",
@@ -157,11 +212,17 @@ const ListUser = () => {
           }}
         >
           <Table
-            style={{ width: "800px", height: "800px" }}
+            style={{
+              maxWidth: "fit-content",
+              justifyContent: "center",
+              display: "flex",
+              alignTtems: "center",
+            }}
+            pagination={true}
             rowKey="id"
             columns={columns}
-            dataSource={userData}
-            pagination={true}
+            dataSource={isSearched === false ? userData : searchResult}
+            onChange={onChange}
           ></Table>
         </div>
       </Card>
