@@ -4,17 +4,13 @@ import { Grid, Paper } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { Card } from "antd";
 
-const ViewUser = () => {
-  const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
+const API = process.env.REACT_APP_API;
 
-  const { id } = useParams();
-  console.log(id);
+const ViewUser = () => {
   const [user, setUser] = useState({});
 
-  // const location = useLocation();
-  // console.log(location);
-
-  console.log("user", user);
+  const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
+  const { id } = useParams();
 
   var myHeaders = new Headers();
   const token = localStorage.getItem("access_token");
@@ -33,13 +29,12 @@ const ViewUser = () => {
   };
 
   useEffect(() => {
-    fetch(`http://202.131.117.92:7100/admin/api/getUserProfile`, requestOptions)
+    fetch(`${API}/admin/api/getUserProfile`, requestOptions)
       .then((response) => response.text())
       .then((result) => setUser(JSON.parse(result)))
       .catch((error) => console.log("error", error));
   }, []);
 
-  console.log("user", user);
   return (
     <Grid>
       <Paper style={paperStyle}>

@@ -2,23 +2,50 @@ import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
 import { Table, Card, Space, Avatar, Button } from "antd";
 import Search from "antd/lib/input/Search";
-import { Link } from "react-router-dom";
-import {
-  EyeOutlined,
-  EditOutlined,
-  KeyOutlined,
-  CheckOutlined,
-} from "@ant-design/icons";
+import { Link, useHistory } from "react-router-dom";
+import { EyeOutlined, EditOutlined, KeyOutlined } from "@ant-design/icons";
+import swal from "sweetalert";
 
-// const API = process.env.REACT_APP;
+const API = process.env.REACT_APP_API;
 
 const ListUser = () => {
   const [userData, setUserData] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
+  const [isActive, setIsActive] = useState(false);
+  const [Delete, setDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // const [Delete, setDelete] = useState(false);
+  const history = useHistory();
 
+  //change status of user
+  const statusHandler = (id) => {
+    const token = localStorage.getItem("access_token");
+
+    var myHeaders = new Headers();
+    myHeaders.append("Authorization", token);
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("userId", id);
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    fetch(`${API}/admin/api/changedUserStatus`, requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        setIsActive((prev) => !prev);
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  //delete user
   const deleteHandler = (id) => {
     var myHeaders = new Headers();
     const token = localStorage.getItem("access_token");
@@ -35,17 +62,23 @@ const ListUser = () => {
       body: urlencoded,
       redirect: "follow",
     };
-
-    fetch("http://202.131.117.92:7100/admin/api/deleteUser", requestOptions)
+    setDelete(true);
+    fetch(`${API}/admin/api/deleteUser`, requestOptions)
       .then((response) => response.text())
       .then((result) => {
         console.log(result);
-        // setDelete(true);
-        alert("user delete succesfully", result);
+        swal("User Delete successfully!", "success", {
+          buttons: false,
+          timer: 2000,
+        }).then(history.push("/user"));
+        setDelete(false);
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        console.log("error", error);
+      });
   };
 
+  //listing users
   var myHeaders = new Headers();
   const token = localStorage.getItem("access_token");
   myHeaders.append("Authorization", token);
@@ -100,7 +133,7 @@ const ListUser = () => {
       title: "photo",
       dataIndex: "profilePicture",
       render: (row) => (
-        <Avatar icon={<img src={row} alt="" height="150px" width="150px" />} />
+        <Avatar icon={<img src={row} alt="" height="200px" width="200px" />} />
       ),
       key: "photo",
     },
@@ -109,7 +142,6 @@ const ListUser = () => {
       title: "firstname",
       dataIndex: "firstName",
       key: "firstname",
-      // sorter: (a, b) => a.firstName - b.firstName,
       sorter: (a, b) => a.firstName.localeCompare(b.firstName),
     },
     {
@@ -150,25 +182,31 @@ const ListUser = () => {
           <Link to={`/user/reset`}>
             <Avatar icon={<KeyOutlined />} />
           </Link>
-          <Link to={`/user/status/${record._id}`}>
-            <Avatar icon={<CheckOutlined />} />
-          </Link>
-
-          {/* <Link to={`/user/delete/${record._id}`}>delete</Link> */}
+          <Button
+            style={{ width: "80px" }}
+            type="primary"
+            onClick={(e) => {
+              statusHandler(record._id);
+            }}
+          >
+            {record?.isActive ? "Active" : "In-Active"}
+          </Button>
           <Button onClick={(e) => deleteHandler(record._id)}>delete</Button>
         </Space>
       ),
     },
   ];
   useEffect(() => {
-    fetch("http://202.131.117.92:7100/admin/api/getUserList", requestOptions)
+    setLoading(true);
+    fetch(`${API}/admin/api/getUserList`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result.data.data);
         setUserData(result.data.data);
+        setError(null);
       })
-      .catch((error) => console.log("error", error));
-  }, []);
+      .catch((error) => setError(error.message));
+    setLoading(false);
+  }, [isActive, Delete]);
 
   const searchHandler = (searchInput) => {
     if (searchInput !== "") {
@@ -184,10 +222,6 @@ const ListUser = () => {
     }
   };
 
-  const onChange = (sorter) => {
-    console.log("params", sorter);
-  };
-
   return (
     <>
       <Card>
@@ -196,7 +230,6 @@ const ListUser = () => {
           allowClear
           onSearch={searchHandler}
           style={{
-            // width: "600px",
             maxWidth: "fit-content",
             justifyContent: "center",
             display: "flex",
@@ -211,19 +244,25 @@ const ListUser = () => {
             marginTop: "20px",
           }}
         >
-          <Table
-            style={{
-              maxWidth: "fit-content",
-              justifyContent: "center",
-              display: "flex",
-              alignTtems: "center",
-            }}
-            pagination={true}
-            rowKey="id"
-            columns={columns}
-            dataSource={isSearched === false ? userData : searchResult}
-            onChange={onChange}
-          ></Table>
+          {loading ? (
+            <p>Loading....</p>
+          ) : error ? (
+            <div>{error}</div>
+          ) : (
+            <Table
+              style={{
+                maxWidth: "fit-content",
+                justifyContent: "center",
+                display: "flex",
+                alignTtems: "center",
+              }}
+              pagination={true}
+              rowKey="id"
+              columns={columns}
+              dataSource={isSearched === false ? userData : searchResult}
+              onChange={() => {}}
+            ></Table>
+          )}
         </div>
       </Card>
     </>

@@ -6,7 +6,6 @@ import UserInfo from "./pages/UserInfo";
 import ViewUser from "./Components/ViewUser";
 import EditUser from "./Components/EditUser";
 import ResetPassword from "./Components/ResetPassword";
-import UserStatus from "./Components/UserStatus";
 
 function App() {
   const token = localStorage.getItem("access_token");
@@ -14,9 +13,10 @@ function App() {
 
   if (!token && !email) {
     return <Login />;
-  } else if (token && email) {
-    return <UserInfo />;
+  } else {
+    <UserInfo />;
   }
+
   return (
     <div>
       <Switch>
@@ -34,9 +34,6 @@ function App() {
         </Route>
         <Route path="/user/reset" exact>
           <ResetPassword />
-        </Route>
-        <Route path="/user/status/:id" exact>
-          <UserStatus />
         </Route>
       </Switch>
     </div>

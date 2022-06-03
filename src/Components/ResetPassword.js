@@ -2,10 +2,16 @@ import React, { useState } from "react";
 import { Grid, Paper } from "@material-ui/core";
 import { Space, Button, Card } from "antd";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
+import { useHistory } from "react-router-dom";
+
+const API = process.env.REACT_APP_API;
 
 const ResetPassword = () => {
   const [currentPassword, setCurrentPassword] = useState({});
   const [newPassword, setNewPassword] = useState({});
+
+  const history = useHistory();
 
   const token = localStorage.getItem("access_token");
 
@@ -16,22 +22,26 @@ const ResetPassword = () => {
   const paperStyle = { padding: 20, width: 500, margin: "100px auto" };
 
   const onSubmit = () => {
-    console.log("result", currentPassword, newPassword);
     var urlencoded = new URLSearchParams();
-    urlencoded.append("currentPasswor", "123456");
+    urlencoded.append("currentPassword", Number(currentPassword));
     urlencoded.append("newPassword", newPassword);
-    fetch("http://202.131.117.92:7100/admin/api/changePassword", {
-      method: "POST",
-      headers: myHeaders,
-      body: urlencoded,
+
+    axios({
+      method: "post",
+      url: `${API}/admin/api/changePassword`,
+      headers: {
+        Authorization: token,
+      },
+      data: urlencoded,
     })
-      .then((response) => response.text())
-      .then((result) => {
-        console.log(result);
-        setCurrentPassword(result.data.currentPassword);
-        setNewPassword(result.data.newPassword);
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+        alert("password Reset Succesfully!");
+        history.push("/user");
       })
-      .catch((error) => console.log("error", error));
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   return (
@@ -46,21 +56,27 @@ const ResetPassword = () => {
             type="password"
             id="currentPassword"
             name="currentPassword"
-            value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
-          <br />
-          <br />
+          {currentPassword.length > 0 && currentPassword.length <= 6 ? (
+            <p style={{ color: "blue" }}>valid</p>
+          ) : (
+            <p style={{ color: "red" }}>length sould be 6 characters</p>
+          )}
+
           <label htmlFor="newPassword">New password :- </label>
           <input
             type="password"
             id="newPassword"
             name="newPassword"
-            value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-          <br />
-          <br />
+          {newPassword.length > 0 && currentPassword.length <= 6 ? (
+            <p style={{ color: "blue" }}>valid</p>
+          ) : (
+            <p style={{ color: "red" }}>length sould be 6 characters</p>
+          )}
+
           <Space>
             <Button type="primary" onClick={onSubmit}>
               Update
