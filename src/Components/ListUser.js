@@ -6,6 +6,7 @@ import { Link, useHistory } from "react-router-dom";
 import { EyeOutlined, EditOutlined, KeyOutlined } from "@ant-design/icons";
 import swal from "sweetalert";
 import moment from "moment";
+import axios from "axios";
 
 import classes from "./ListUser.module.css";
 
@@ -26,26 +27,23 @@ const ListUser = () => {
   const statusHandler = (id) => {
     const token = localStorage.getItem("access_token");
 
-    var myHeaders = new Headers();
-    myHeaders.append("Authorization", token);
-    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
     var urlencoded = new URLSearchParams();
     urlencoded.append("userId", id);
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: urlencoded,
-      redirect: "follow",
-    };
-
-    fetch(`${API}/admin/api/changedUserStatus`, requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
+    axios({
+      method: "post",
+      url: `${API}/admin/api/changedUserStatus`,
+      headers: {
+        Authorization: token,
+      },
+      data: urlencoded,
+    })
+      .then(function (response) {
         setIsActive((prev) => !prev);
       })
-      .catch((error) => console.log("error", error));
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   //delete user
@@ -66,18 +64,23 @@ const ListUser = () => {
       redirect: "follow",
     };
     setDelete(true);
-    fetch(`${API}/admin/api/deleteUser`, requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
-        console.log(result);
+    axios({
+      method: "post",
+      url: `${API}/admin/api/deleteUser`,
+      headers: {
+        Authorization: token,
+      },
+      data: urlencoded,
+    })
+      .then(function (response) {
         swal("User Delete successfully!", "success", {
           buttons: false,
           timer: 2000,
         }).then(history.push("/user"));
         setDelete(false);
       })
-      .catch((error) => {
-        console.log("error", error);
+      .catch(function (error) {
+        console.log(error);
       });
   };
 
@@ -228,12 +231,14 @@ const ListUser = () => {
   return (
     <>
       <Card>
-        <Search
-          placeholder="search user"
-          allowClear
-          onSearch={searchHandler}
-          className={classes.search}
-        />
+        <div className={classes.search}>
+          <label>Search:- </label>
+          <Search
+            placeholder="search user"
+            allowClear
+            onSearch={searchHandler}
+          />
+        </div>
         <div className={classes.layout}>
           {loading ? (
             <p>Loading....</p>

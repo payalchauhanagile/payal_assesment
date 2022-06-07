@@ -12,14 +12,11 @@ const API = process.env.REACT_APP_API;
 const ResetPassword = () => {
   const [currentPassword, setCurrentPassword] = useState({});
   const [newPassword, setNewPassword] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const history = useHistory();
 
   const token = localStorage.getItem("access_token");
-
-  var myHeaders = new Headers();
-  myHeaders.append("Authorization", token);
-  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
   const paperStyle = { padding: 20, width: 500, margin: "100px auto" };
 
@@ -27,7 +24,7 @@ const ResetPassword = () => {
     var urlencoded = new URLSearchParams();
     urlencoded.append("currentPassword", Number(currentPassword));
     urlencoded.append("newPassword", newPassword);
-
+    setIsLoading(true);
     axios({
       method: "post",
       url: `${API}/admin/api/changePassword`,
@@ -44,6 +41,7 @@ const ResetPassword = () => {
       .catch(function (error) {
         console.log(error);
       });
+    setIsLoading(false);
   };
 
   return (
@@ -52,42 +50,46 @@ const ResetPassword = () => {
         <Grid>
           <h1>Reset password</h1>
         </Grid>
-        <Card>
-          <label htmlFor="currentPassword">Current password :- </label>
-          <input
-            type="password"
-            id="currentPassword"
-            name="currentPassword"
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
-          {currentPassword.length > 0 && currentPassword.length <= 6 ? (
-            <p className={classes.valid}>valid</p>
-          ) : (
-            <p className={classes.invalid}>length sould be 6 characters</p>
-          )}
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <Card>
+            <label htmlFor="currentPassword">Current password :- </label>
+            <input
+              type="password"
+              id="currentPassword"
+              name="currentPassword"
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+            {currentPassword.length > 0 && currentPassword.length <= 6 ? (
+              <p className={classes.valid}>valid</p>
+            ) : (
+              <p className={classes.invalid}>length sould be 6 characters</p>
+            )}
 
-          <label htmlFor="newPassword">New password :- </label>
-          <input
-            type="password"
-            id="newPassword"
-            name="newPassword"
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          {newPassword.length > 0 && currentPassword.length <= 6 ? (
-            <p className={classes.valid}>valid</p>
-          ) : (
-            <p className={classes.invalid}>length sould be 6 characters</p>
-          )}
+            <label htmlFor="newPassword">New password :- </label>
+            <input
+              type="password"
+              id="newPassword"
+              name="newPassword"
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            {newPassword.length > 0 && currentPassword.length <= 6 ? (
+              <p className={classes.valid}>valid</p>
+            ) : (
+              <p className={classes.invalid}>length sould be 6 characters</p>
+            )}
 
-          <Space>
-            <Button type="primary" onClick={onSubmit}>
-              Update
-            </Button>
-            <Button type="primary">
-              <NavLink to="/user">Back</NavLink>
-            </Button>
-          </Space>
-        </Card>
+            <Space>
+              <Button type="primary" onClick={onSubmit}>
+                Update
+              </Button>
+              <Button type="primary">
+                <NavLink to="/user">Back</NavLink>
+              </Button>
+            </Space>
+          </Card>
+        )}
       </Paper>
     </Grid>
   );

@@ -18,7 +18,8 @@ const EditUser = () => {
   const [profile, setProfile] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [isImageUploaded, setIsImageUploaded] = useState(false);
-  const [loginError, setLoginError] = useState();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const { id } = useParams();
 
@@ -29,7 +30,6 @@ const EditUser = () => {
   const setImageHadler = () => {
     var imagefile = document.querySelector("#editImage");
     if (!imagefile.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
-      setLoginError("select valid image!");
       return false;
     }
     setProfile(imagefile.files[0]);
@@ -45,6 +45,8 @@ const EditUser = () => {
   urlencoded.append("userId", id);
 
   useEffect(() => {
+    setLoading(true);
+
     fetch(`${API}/admin/api/getUserProfile`, {
       method: "POST",
       headers: myHeaders,
@@ -52,6 +54,8 @@ const EditUser = () => {
     })
       .then((response) => response.json())
       .then((result) => {
+        setError(null);
+
         setFirstName(result.data.firstName);
         setLastName(result.data.lastName);
         setEmail(result.data.email);
@@ -59,15 +63,11 @@ const EditUser = () => {
         setProfile(result.data.profilePicture);
         setBirthdate(result.data.birthday);
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => setError(error.message));
+    setLoading(false);
   }, []);
 
   const onSubmit = async () => {
-    var myHeaders1 = new Headers();
-
-    myHeaders1.append("Authorization", token);
-    myHeaders1.append("Content-Type", "application/json");
-
     var formdata = new FormData();
     formdata.append("userId", id);
     formdata.append("firstName", firstName);
@@ -103,123 +103,131 @@ const EditUser = () => {
         <Grid>
           <h1>User Edit</h1>
         </Grid>
-        <Card>
-          <label htmlFor="profile">profile :</label>
-          <br />
-          <div>
-            <img
-              src={profile}
-              alt="user profile"
-              height="100px"
-              width="100px"
-            />
-            <div>
+        <div className={classes.layout}>
+          {loading ? (
+            <p>Loading....</p>
+          ) : error ? (
+            <div>{error}</div>
+          ) : (
+            <Card>
+              <label htmlFor="profile">profile :</label>
+              <br />
+              <div>
+                <img
+                  src={profile}
+                  alt="user profile"
+                  height="100px"
+                  width="100px"
+                />
+                <div>
+                  <input
+                    type="file"
+                    name="profile"
+                    id="editImage"
+                    placeholder="Please enter user profile"
+                    onChange={() => {
+                      setImageHadler();
+                      setIsImageUploaded(true);
+                    }}
+                  />
+                </div>
+              </div>
+              <br />
+              {profile === "" ? (
+                <p className={classes.invalid}>photo is required!</p>
+              ) : (
+                ""
+              )}
+              <label htmlFor="firstname">firstname : </label> <br />
               <input
-                type="file"
-                name="profile"
-                id="editImage"
-                placeholder="Please enter user profile"
-                onChange={() => {
-                  setImageHadler();
-                  setIsImageUploaded(true);
-                }}
+                type="text"
+                name="firstName"
+                id="firstname"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
               />
-            </div>
-          </div>
-          <br />
-          {profile === "" ? (
-            <p className={classes.invalid}>photo is required!</p>
-          ) : (
-            ""
-          )}
-          <label htmlFor="firstname">firstname : </label> <br />
-          <input
-            type="text"
-            name="firstName"
-            id="firstname"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-          <br />
-          {firstName === "" ? (
-            <p className={classes.invalid}>firstname is required!</p>
-          ) : (
-            ""
-          )}
-          <label htmlFor="lastname">lastname :</label> <br />
-          <input
-            type="text"
-            name="lastName"
-            id="lastname"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-          <br />
-          {lastName === "" ? (
-            <p className={classes.invalid}>lastname is required!</p>
-          ) : (
-            ""
-          )}
-          <label htmlFor="email">email : </label> <br />
-          <input
-            type="email"
-            name="email"
-            id="email"
-            disabled
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <br />
-          {email === "" ? (
-            <p className={classes.invalid}>email is required!</p>
-          ) : (
-            ""
-          )}
-          <label htmlFor="phone">phone :</label> <br />
-          <input
-            type="number"
-            name="phone"
-            id="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-          <br />
-          {phone === "" ? (
-            <p className={classes.invalid}>phone number is required!</p>
-          ) : (
-            ""
-          )}
-          <label htmlFor="image">Birthdate</label>
-          <br />
-          <input
-            type="date"
-            name="birthdate"
-            id="birthdate"
-            value={moment(birthdate).format("YYYY-MM-DD")}
-            onChange={(e) => setBirthdate(e.target.value)}
-            required
-          />
-          <br />
-          {birthdate === "" ? (
-            <p className={classes.invalid}>birthdate is required!</p>
-          ) : (
-            ""
-          )}
-          <br />
-          <Space>
-            <Button type="submit" onClick={onSubmit}>
-              Update
-            </Button>
+              <br />
+              {firstName === "" ? (
+                <p className={classes.invalid}>firstname is required!</p>
+              ) : (
+                ""
+              )}
+              <label htmlFor="lastname">lastname :</label> <br />
+              <input
+                type="text"
+                name="lastName"
+                id="lastname"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+              <br />
+              {lastName === "" ? (
+                <p className={classes.invalid}>lastname is required!</p>
+              ) : (
+                ""
+              )}
+              <label htmlFor="email">email : </label> <br />
+              <input
+                type="email"
+                name="email"
+                id="email"
+                disabled
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <br />
+              {email === "" ? (
+                <p className={classes.invalid}>email is required!</p>
+              ) : (
+                ""
+              )}
+              <label htmlFor="phone">phone :</label> <br />
+              <input
+                type="number"
+                name="phone"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+              <br />
+              {phone === "" ? (
+                <p className={classes.invalid}>phone number is required!</p>
+              ) : (
+                ""
+              )}
+              <label htmlFor="image">Birthdate</label>
+              <br />
+              <input
+                type="date"
+                name="birthdate"
+                id="birthdate"
+                value={moment(birthdate).format("YYYY-MM-DD")}
+                onChange={(e) => setBirthdate(e.target.value)}
+                required
+              />
+              <br />
+              {birthdate === "" ? (
+                <p className={classes.invalid}>birthdate is required!</p>
+              ) : (
+                ""
+              )}
+              <br />
+              <Space>
+                <Button type="submit" onClick={onSubmit}>
+                  Update
+                </Button>
 
-            <Button type="primary">
-              <NavLink to="/user">Back</NavLink>
-            </Button>
-          </Space>
-        </Card>
+                <Button type="primary">
+                  <NavLink to="/user">Back</NavLink>
+                </Button>
+              </Space>
+            </Card>
+          )}
+        </div>
       </Paper>
     </Grid>
   );

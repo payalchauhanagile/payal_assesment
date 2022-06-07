@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { Grid, Paper } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { Card } from "antd";
+import axios from "axios";
 
 import classes from "./ViewUser.module.css";
 
@@ -15,28 +16,28 @@ const ViewUser = () => {
   const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
   const { id } = useParams();
 
-  var myHeaders = new Headers();
   const token = localStorage.getItem("access_token");
-
-  myHeaders.append("Authorization", token);
-  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
   var urlencoded = new URLSearchParams();
   urlencoded.append("userId", id);
 
-  var requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: urlencoded,
-    redirect: "follow",
-  };
-
   useEffect(() => {
     setIsLoading(true);
-    fetch(`${API}/admin/api/getUserProfile`, requestOptions)
-      .then((response) => response.text())
-      .then((result) => setUser(JSON.parse(result)))
-      .catch((error) => console.log("error", error));
+    axios({
+      method: "post",
+      url: `${API}/admin/api/getUserProfile`,
+      headers: {
+        Authorization: token,
+      },
+      data: urlencoded,
+    })
+      .then(function (response) {
+        JSON.stringify(response.data);
+        setUser(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     setIsLoading(false);
   }, []);
 
