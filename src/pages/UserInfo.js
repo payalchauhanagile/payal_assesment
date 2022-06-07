@@ -3,6 +3,7 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 
 import ListUser from "../Components/ListUser";
+import classes from "./UserInfo.module.css";
 
 const UserInfo = () => {
   const history = useHistory();
@@ -15,13 +16,9 @@ const UserInfo = () => {
 
   return (
     <>
-      <div style={{ display: "flex" }}>
-        <h1 style={{ marginLeft: "40px" }}>User Management</h1>
-        <Button
-          type="primary"
-          style={{ marginLeft: "70%", marginTop: "10px" }}
-          onClick={logOutHandler}
-        >
+      <div className={classes.main}>
+        <h1 className={classes.h1}>User Management</h1>
+        <Button type="primary" onClick={logOutHandler} className={classes.btn}>
           Log Out
         </Button>
       </div>

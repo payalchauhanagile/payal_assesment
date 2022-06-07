@@ -4,10 +4,13 @@ import { Grid, Paper } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { Card } from "antd";
 
+import classes from "./ViewUser.module.css";
+
 const API = process.env.REACT_APP_API;
 
 const ViewUser = () => {
   const [user, setUser] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
   const { id } = useParams();
@@ -29,10 +32,12 @@ const ViewUser = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     fetch(`${API}/admin/api/getUserProfile`, requestOptions)
       .then((response) => response.text())
       .then((result) => setUser(JSON.parse(result)))
       .catch((error) => console.log("error", error));
+    setIsLoading(false);
   }, []);
 
   return (
@@ -42,29 +47,33 @@ const ViewUser = () => {
           <h2>User Detail</h2>
         </Grid>
         <Card>
-          <ul>
-            <li>
-              {
-                <img
-                  src={user?.data?.profilePicture}
-                  style={{ height: "100px", width: "100px" }}
-                />
-              }
-            </li>
-            <br />
-            <li>id:- {user?.data?._id}</li>
-            <br />
-            <li>email:- {user?.data?.email}</li>
-            <br />
-            <li>firstname:- {user?.data?.firstName}</li>
-            <br />
-            <li>lastname:- {user?.data?.lastName}</li>
-            <br />
-            <li>phone:- {user?.data?.phoneNumber}</li>
-            <br />
-            <li>birthdate:- {user?.data?.birthday}</li>
-            <br />
-          </ul>
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <ul>
+              <li>
+                {
+                  <img
+                    src={user?.data?.profilePicture}
+                    className={classes.profile}
+                  />
+                }
+              </li>
+              <br />
+              <li>id:- {user?.data?._id}</li>
+              <br />
+              <li>email:- {user?.data?.email}</li>
+              <br />
+              <li>firstname:- {user?.data?.firstName}</li>
+              <br />
+              <li>lastname:- {user?.data?.lastName}</li>
+              <br />
+              <li>phone:- {user?.data?.phoneNumber}</li>
+              <br />
+              <li>birthdate:- {user?.data?.birthday}</li>
+              <br />
+            </ul>
+          )}
 
           <button>
             <NavLink to="/user">Back</NavLink>

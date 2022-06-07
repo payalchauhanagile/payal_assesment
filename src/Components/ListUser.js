@@ -5,6 +5,9 @@ import Search from "antd/lib/input/Search";
 import { Link, useHistory } from "react-router-dom";
 import { EyeOutlined, EditOutlined, KeyOutlined } from "@ant-design/icons";
 import swal from "sweetalert";
+import moment from "moment";
+
+import classes from "./ListUser.module.css";
 
 const API = process.env.REACT_APP_API;
 
@@ -166,7 +169,7 @@ const ListUser = () => {
       title: "birthday",
       dataIndex: "birthday",
       key: "birthday",
-      sorter: (a, b) => a.birthday - b.birthday,
+      sorter: (a, b) => moment(a.birthday).unix() - moment(b.birthday).unix(),
     },
     {
       title: "Action",
@@ -229,38 +232,22 @@ const ListUser = () => {
           placeholder="search user"
           allowClear
           onSearch={searchHandler}
-          style={{
-            maxWidth: "fit-content",
-            justifyContent: "center",
-            display: "flex",
-            alignTtems: "center",
-          }}
+          className={classes.search}
         />
-        <div
-          style={{
-            justifyContent: "center",
-            display: "flex",
-            alignItems: "center",
-            marginTop: "20px",
-          }}
-        >
+        <div className={classes.layout}>
           {loading ? (
             <p>Loading....</p>
           ) : error ? (
             <div>{error}</div>
           ) : (
             <Table
-              style={{
-                maxWidth: "fit-content",
-                justifyContent: "center",
-                display: "flex",
-                alignTtems: "center",
-              }}
+              className={classes.table}
               pagination={true}
               rowKey="id"
               columns={columns}
               dataSource={isSearched === false ? userData : searchResult}
               onChange={() => {}}
+              locale={{ emptyText: "User Data Not Found...!" }}
             ></Table>
           )}
         </div>

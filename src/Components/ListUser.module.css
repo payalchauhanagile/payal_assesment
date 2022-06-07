@@ -1,0 +1,20 @@
+.search {
+  justify-content: center;
+  max-width: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+.layout {
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.table {
+  max-width: fit-content;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}

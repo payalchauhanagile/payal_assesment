@@ -4,27 +4,36 @@ import { useParams } from "react-router";
 import { Card, Button, Space } from "antd";
 import { NavLink, useHistory } from "react-router-dom";
 import axios from "axios";
+import moment from "moment";
+
+import classes from "./EditUser.module.css";
 
 const API = process.env.REACT_APP_API;
 
 const EditUser = () => {
-  const [firstName, setFirstName] = useState({});
-  const [lastName, setLastName] = useState({});
-  const [email, setEmail] = useState({});
-  const [phone, setPhone] = useState({});
-  const [photo, setPhoto] = useState({});
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [profile, setProfile] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [isImageUploaded, setIsImageUploaded] = useState(false);
+  const [loginError, setLoginError] = useState();
+
   const { id } = useParams();
 
   const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
 
   const history = useHistory();
 
-  function handleChange(e) {
-    console.log(e.target.files);
-    setPhoto(URL.createObjectURL(e.target.files[0]));
-  }
-
-  console.log("🚀 ~ file: EditUser.js ~ line 68 ~ onSubmit ~ photo", photo);
+  const setImageHadler = () => {
+    var imagefile = document.querySelector("#editImage");
+    if (!imagefile.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
+      setLoginError("select valid image!");
+      return false;
+    }
+    setProfile(imagefile.files[0]);
+  };
 
   var myHeaders = new Headers();
   const token = localStorage.getItem("access_token");
@@ -47,14 +56,13 @@ const EditUser = () => {
         setLastName(result.data.lastName);
         setEmail(result.data.email);
         setPhone(result.data.phoneNumber);
-        setPhoto(result.data.profilePicture);
+        setProfile(result.data.profilePicture);
+        setBirthdate(result.data.birthday);
       })
       .catch((error) => console.log("error", error));
   }, []);
 
   const onSubmit = async () => {
-    console.log(firstName, lastName, email, photo, phone);
-
     var myHeaders1 = new Headers();
 
     myHeaders1.append("Authorization", token);
@@ -66,7 +74,10 @@ const EditUser = () => {
     formdata.append("lastName", lastName);
     formdata.append("email", email);
     formdata.append("phoneNumber", phone);
-    formdata.append("profilePicture", photo);
+    formdata.append("birthday", birthdate);
+    if (isImageUploaded) {
+      formdata.append("profilePicture", profile);
+    }
 
     axios({
       method: "post",
@@ -77,7 +88,7 @@ const EditUser = () => {
       data: formdata,
     })
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
+        JSON.stringify(response.data);
         alert("user updated succesfully!");
         history.push("/user");
       })
@@ -93,6 +104,34 @@ const EditUser = () => {
           <h1>User Edit</h1>
         </Grid>
         <Card>
+          <label htmlFor="profile">profile :</label>
+          <br />
+          <div>
+            <img
+              src={profile}
+              alt="user profile"
+              height="100px"
+              width="100px"
+            />
+            <div>
+              <input
+                type="file"
+                name="profile"
+                id="editImage"
+                placeholder="Please enter user profile"
+                onChange={() => {
+                  setImageHadler();
+                  setIsImageUploaded(true);
+                }}
+              />
+            </div>
+          </div>
+          <br />
+          {profile === "" ? (
+            <p className={classes.invalid}>photo is required!</p>
+          ) : (
+            ""
+          )}
           <label htmlFor="firstname">firstname : </label> <br />
           <input
             type="text"
@@ -104,7 +143,7 @@ const EditUser = () => {
           />
           <br />
           {firstName === "" ? (
-            <p style={{ color: "red" }}>firstname is required!</p>
+            <p className={classes.invalid}>firstname is required!</p>
           ) : (
             ""
           )}
@@ -119,7 +158,7 @@ const EditUser = () => {
           />
           <br />
           {lastName === "" ? (
-            <p style={{ color: "red" }}>lastname is required!</p>
+            <p className={classes.invalid}>lastname is required!</p>
           ) : (
             ""
           )}
@@ -128,13 +167,14 @@ const EditUser = () => {
             type="email"
             name="email"
             id="email"
+            disabled
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           <br />
           {email === "" ? (
-            <p style={{ color: "red" }}>email is required!</p>
+            <p className={classes.invalid}>email is required!</p>
           ) : (
             ""
           )}
@@ -149,23 +189,27 @@ const EditUser = () => {
           />
           <br />
           {phone === "" ? (
-            <p style={{ color: "red" }}>phone number is required!</p>
+            <p className={classes.invalid}>phone number is required!</p>
           ) : (
             ""
           )}
-          <label htmlFor="image">photo :</label>
+          <label htmlFor="image">Birthdate</label>
           <br />
-          <div>
-            <input type="file" onChange={handleChange} />
-            <img src={photo} height="100px" width="100px" />
-          </div>
+          <input
+            type="date"
+            name="birthdate"
+            id="birthdate"
+            value={moment(birthdate).format("YYYY-MM-DD")}
+            onChange={(e) => setBirthdate(e.target.value)}
+            required
+          />
           <br />
-          <br />
-          {photo === "" ? (
-            <p style={{ color: "red" }}>photo is required!</p>
+          {birthdate === "" ? (
+            <p className={classes.invalid}>birthdate is required!</p>
           ) : (
             ""
           )}
+          <br />
           <Space>
             <Button type="submit" onClick={onSubmit}>
               Update

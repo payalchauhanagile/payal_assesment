@@ -5,6 +5,8 @@ import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 
+import classes from "./ResetPassword.module.css";
+
 const API = process.env.REACT_APP_API;
 
 const ResetPassword = () => {
@@ -59,9 +61,9 @@ const ResetPassword = () => {
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
           {currentPassword.length > 0 && currentPassword.length <= 6 ? (
-            <p style={{ color: "blue" }}>valid</p>
+            <p className={classes.valid}>valid</p>
           ) : (
-            <p style={{ color: "red" }}>length sould be 6 characters</p>
+            <p className={classes.invalid}>length sould be 6 characters</p>
           )}
 
           <label htmlFor="newPassword">New password :- </label>
@@ -72,9 +74,9 @@ const ResetPassword = () => {
             onChange={(e) => setNewPassword(e.target.value)}
           />
           {newPassword.length > 0 && currentPassword.length <= 6 ? (
-            <p style={{ color: "blue" }}>valid</p>
+            <p className={classes.valid}>valid</p>
           ) : (
-            <p style={{ color: "red" }}>length sould be 6 characters</p>
+            <p className={classes.invalid}>length sould be 6 characters</p>
           )}
 
           <Space>

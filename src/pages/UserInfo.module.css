@@ -1,0 +1,12 @@
+.main {
+  display: flex;
+}
+
+.h1 {
+  margin-left: 40px;
+}
+
+.btn {
+  margin-left: 70%;
+  margin-top: 10px;
+}
