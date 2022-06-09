@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "antd/dist/antd.css";
-import { Table, Card, Space, Avatar, Button } from "antd";
+import { Table, Card, Space, Avatar } from "antd";
 import Search from "antd/lib/input/Search";
-import { Link, useHistory } from "react-router-dom";
-import { EyeOutlined, EditOutlined, KeyOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
+import {
+  EyeOutlined,
+  EditOutlined,
+  KeyOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import swal from "sweetalert";
 import moment from "moment";
 import axios from "axios";
 
 import classes from "./ListUser.module.css";
+import { DeleteOutline } from "@material-ui/icons";
 
 const API = process.env.REACT_APP_API;
 
@@ -17,11 +24,9 @@ const ListUser = () => {
   const [isSearched, setIsSearched] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
   const [isActive, setIsActive] = useState(false);
-  const [Delete, setDelete] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const history = useHistory();
 
   //change status of user
   const statusHandler = (id) => {
@@ -40,6 +45,11 @@ const ListUser = () => {
     })
       .then(function (response) {
         setIsActive((prev) => !prev);
+        swal("User status change successfully!", "success", {
+          buttons: [true, "ok"],
+          icon: "success",
+          timer: 2000,
+        });
       })
       .catch(function (error) {
         console.log(error);
@@ -48,22 +58,12 @@ const ListUser = () => {
 
   //delete user
   const deleteHandler = (id) => {
-    var myHeaders = new Headers();
     const token = localStorage.getItem("access_token");
-
-    myHeaders.append("Authorization", token);
-    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
     var urlencoded = new URLSearchParams();
     urlencoded.append("userId", id);
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: urlencoded,
-      redirect: "follow",
-    };
-    setDelete(true);
+    setIsDelete(true);
     axios({
       method: "post",
       url: `${API}/admin/api/deleteUser`,
@@ -74,10 +74,11 @@ const ListUser = () => {
     })
       .then(function (response) {
         swal("User Delete successfully!", "success", {
-          buttons: false,
+          buttons: [true, "ok"],
+          icon: "success",
           timer: 2000,
-        }).then(history.push("/user"));
-        setDelete(false);
+        });
+        setIsDelete(false);
       })
       .catch(function (error) {
         console.log(error);
@@ -117,7 +118,7 @@ const ListUser = () => {
     order: [
       {
         column: 1,
-        dir: "desc",
+        dir: "asc",
       },
     ],
     start: 0,
@@ -154,13 +155,13 @@ const ListUser = () => {
       title: "lastname",
       dataIndex: "lastName",
       key: "lastname",
-      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+      sorter: (a, b) => a.lastName.localeCompare(b.lastName),
     },
     {
       title: "email",
       dataIndex: "email",
       key: "email",
-      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+      sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
       title: "phone",
@@ -172,7 +173,23 @@ const ListUser = () => {
       title: "birthday",
       dataIndex: "birthday",
       key: "birthday",
+      render: (birthday) => (
+        <div>
+          <p>{moment(birthday).format("DD-MM-YYYY")}</p>
+        </div>
+      ),
       sorter: (a, b) => moment(a.birthday).unix() - moment(b.birthday).unix(),
+    },
+    {
+      title: "created date",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (createdAt) => (
+        <div>
+          <p>{moment(createdAt).format("DD/MM/YYYY H:MM")}</p>
+        </div>
+      ),
+      sorter: (a, b) => moment(a.createdAt).unix() - moment(b.createdAt).unix(),
     },
     {
       title: "Action",
@@ -188,16 +205,20 @@ const ListUser = () => {
           <Link to={`/user/reset`}>
             <Avatar icon={<KeyOutlined />} />
           </Link>
-          <Button
-            style={{ width: "80px" }}
-            type="primary"
+          <Link
             onClick={(e) => {
               statusHandler(record._id);
             }}
           >
-            {record?.isActive ? "Active" : "In-Active"}
-          </Button>
-          <Button onClick={(e) => deleteHandler(record._id)}>delete</Button>
+            {record?.isActive ? (
+              <Avatar icon={<CheckOutlined style={{ color: "#4E89FF" }} />} />
+            ) : (
+              <Avatar icon={<CloseOutlined />} />
+            )}
+          </Link>
+          <Link onClick={(e) => deleteHandler(record._id)}>
+            <Avatar icon={<DeleteOutline />} />
+          </Link>
         </Space>
       ),
     },
@@ -212,7 +233,7 @@ const ListUser = () => {
       })
       .catch((error) => setError(error.message));
     setLoading(false);
-  }, [isActive, Delete]);
+  }, [isActive, isDelete]);
 
   const searchHandler = (searchInput) => {
     if (searchInput !== "") {

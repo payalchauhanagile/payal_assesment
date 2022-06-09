@@ -12,6 +12,7 @@ const API = process.env.REACT_APP_API;
 const ViewUser = () => {
   const [user, setUser] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const paperStyle = { padding: 20, width: 400, margin: "100px auto" };
   const { id } = useParams();
@@ -36,7 +37,7 @@ const ViewUser = () => {
         setUser(response.data);
       })
       .catch(function (error) {
-        console.log(error);
+        setError(true);
       });
     setIsLoading(false);
   }, []);
@@ -48,6 +49,7 @@ const ViewUser = () => {
           <h2>User Detail</h2>
         </Grid>
         <Card>
+          {error && <p style={{ color: "red" }}>something went wrong!</p>}
           {isLoading ? (
             <p>Loading...</p>
           ) : (
@@ -63,15 +65,18 @@ const ViewUser = () => {
               <br />
               <li>id:- {user?.data?._id}</li>
               <br />
-              <li>email:- {user?.data?.email}</li>
+
+              <li>Firstname:- {user?.data?.firstName}</li>
               <br />
-              <li>firstname:- {user?.data?.firstName}</li>
+              <li>Lastname:- {user?.data?.lastName}</li>
               <br />
-              <li>lastname:- {user?.data?.lastName}</li>
+              <li>Email:- {user?.data?.email}</li>
               <br />
-              <li>phone:- {user?.data?.phoneNumber}</li>
+              <li>Phone Number :- {user?.data?.phoneNumber}</li>
               <br />
-              <li>birthdate:- {user?.data?.birthday}</li>
+              <li>Birthday:- {user?.data?.birthday}</li>
+              <br />
+              <li>Skill Points:- {user?.data?.skillPoints}</li>
               <br />
             </ul>
           )}

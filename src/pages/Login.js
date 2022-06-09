@@ -52,7 +52,7 @@ const Login = () => {
       email,
       password,
     });
-    console.log("response", response);
+
     if ("access_token" in response.data) {
       swal("Success", response.message, "success", {
         buttons: false,

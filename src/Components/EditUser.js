@@ -27,11 +27,8 @@ const EditUser = () => {
 
   const history = useHistory();
 
-  const setImageHadler = () => {
+  const imageHandler = () => {
     var imagefile = document.querySelector("#editImage");
-    if (!imagefile.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
-      return false;
-    }
     setProfile(imagefile.files[0]);
   };
 
@@ -126,7 +123,7 @@ const EditUser = () => {
                     id="editImage"
                     placeholder="Please enter user profile"
                     onChange={() => {
-                      setImageHadler();
+                      imageHandler();
                       setIsImageUploaded(true);
                     }}
                   />
